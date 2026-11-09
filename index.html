@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TextBlast — Free Text Repeater</title>
+<meta name="description" content="TextBlast is a free text repeater that runs entirely in your browser. Repeat any text up to 100,000 times with separators, numbering, prefixes and suffixes — then copy it or download it as a .txt file." />
+<link rel="canonical" href="https://textblast.vercel.app/" />
+<meta name="theme-color" content="#0B0B0F" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="TextBlast — Free Text Repeater" />
+<meta property="og:description" content="Repeat any text up to 100,000 times — with separators, numbering and one-tap copy. Free, no account, nothing uploaded." />
+<meta property="og:url" content="https://textblast.vercel.app/" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="TextBlast — Free Text Repeater" />
+<meta name="twitter:description" content="Repeat any text up to 100,000 times — with separators, numbering and one-tap copy. Free, no account, nothing uploaded." />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">T</span> TextBlast</div>
+  <p class="tagline">Repeat any text up to 100,000 times — no uploads, no account.</p>
+</header>
+
+<main class="wrap">
+  <section class="card" aria-labelledby="input-heading">
+    <h1 id="input-heading">Text repeater</h1>
+    <p class="muted">Type or paste the text to repeat, pick how many times, and the output builds itself live. Everything runs on your device.</p>
+
+    <label class="control-label" for="text-input">Your text</label>
+    <textarea id="text-input" class="text-input" rows="4" placeholder="Type the text you want to repeat…"></textarea>
+    <p class="muted small"><span id="input-chars">0 characters</span> · <span id="input-words">0 words</span></p>
+
+    <div class="control-actions">
+      <button id="sample-btn" type="button" class="btn">Try a sample</button>
+      <button id="clear-btn" type="button" class="btn">Clear</button>
+    </div>
+
+    <div class="control-row">
+      <div class="control-group grow" role="group" aria-label="Repeat count">
+        <span class="control-label">Repeat count</span>
+        <div class="count-row">
+          <input id="count-range" type="range" min="1" max="100000" step="1" value="10" aria-label="Repeat count slider" />
+          <input id="count-input" type="number" min="1" max="100000" step="1" value="10" aria-label="Repeat count" />
+        </div>
+        <div class="pill-row" id="preset-row">
+          <button type="button" class="pill preset-btn active" data-count="10">10</button>
+          <button type="button" class="pill preset-btn" data-count="100">100</button>
+          <button type="button" class="pill preset-btn" data-count="1000">1,000</button>
+          <button type="button" class="pill preset-btn" data-count="10000">10,000</button>
+          <button type="button" class="pill preset-btn" data-count="100000">100,000</button>
+        </div>
+        <p class="muted small">Maximum 100,000 repeats. Counts outside the range are clamped automatically.</p>
+      </div>
+    </div>
+
+    <div class="control-row">
+      <div class="control-group" role="group" aria-label="Separator">
+        <span class="control-label">Separator between repeats</span>
+        <div class="pill-row" id="sep-row">
+          <button type="button" class="pill sep-btn active" data-separator="space">Space</button>
+          <button type="button" class="pill sep-btn" data-separator="newline">New line</button>
+          <button type="button" class="pill sep-btn" data-separator="comma">Comma</button>
+          <button type="button" class="pill sep-btn" data-separator="custom">Custom</button>
+          <button type="button" class="pill sep-btn" data-separator="none">None</button>
+        </div>
+        <div id="custom-sep-wrap" class="custom-sep" hidden>
+          <label class="control-label" for="custom-sep-input">Custom separator</label>
+          <input id="custom-sep-input" type="text" value=", " placeholder="e.g. - or | " />
+        </div>
+        <p id="sep-preview" class="muted small">Separator between repeats: " "</p>
+      </div>
+
+      <div class="control-group" role="group" aria-label="Numbering">
+        <span class="control-label">Numbering</span>
+        <select id="numbering-style" class="select" aria-label="Numbering style">
+          <option value="none" selected>No numbering</option>
+          <option value="dot">1.  2.  3.</option>
+          <option value="paren">1)  2)  3)</option>
+          <option value="bracket">[1]  [2]  [3]</option>
+        </select>
+        <p class="muted small">The number goes at the start of each repeat, before any prefix.</p>
+      </div>
+    </div>
+
+    <div class="control-row">
+      <div class="control-group grow">
+        <label class="control-label" for="prefix-input">Prefix (added to every repeat)</label>
+        <input id="prefix-input" type="text" placeholder="e.g. &gt;&gt; " />
+      </div>
+      <div class="control-group grow">
+        <label class="control-label" for="suffix-input">Suffix (added to every repeat)</label>
+        <input id="suffix-input" type="text" placeholder="e.g. !" />
+      </div>
+    </div>
+  </section>
+
+  <section class="card output-card" aria-labelledby="output-heading">
+    <h2 id="output-heading">Output</h2>
+    <dl class="result-grid">
+      <div><dt>Characters</dt><dd id="result-chars">0</dd></div>
+      <div><dt>Words</dt><dd id="result-words">0</dd></div>
+      <div><dt>Lines</dt><dd id="result-lines">0</dd></div>
+      <div><dt>Estimated size</dt><dd id="result-size">0 B</dd></div>
+    </dl>
+    <pre id="output-preview" class="output-preview" aria-label="Repeated output preview"></pre>
+    <p id="output-note" class="muted small">Type something above and the repeated output appears here.</p>
+    <div class="control-actions">
+      <button id="show-full-btn" type="button" class="btn" hidden>Show full output</button>
+      <button id="copy-btn" type="button" class="btn primary">Copy output</button>
+      <button id="download-btn" type="button" class="btn">Download .txt</button>
+    </div>
+    <p id="copy-status" class="muted small" aria-live="polite"></p>
+  </section>
+
+  <section class="card" aria-labelledby="honest-heading">
+    <h2 id="honest-heading">Good to know</h2>
+    <ul class="honest-list">
+      <li><strong>The preview only renders the first 2,000 characters.</strong> With 100,000 repeats the full output can be millions of characters long, and rendering all of it would freeze the page. Copy and Download always use the complete output, even when the preview is truncated.</li>
+      <li><strong>Huge outputs can be slow to copy.</strong> A 100,000-repeat job with a long text can be several megabytes; the clipboard may take a few seconds, and some apps paste large text slowly. Downloading the .txt file is the reliable route for very large outputs.</li>
+      <li><strong>Your settings are remembered, your text is not.</strong> The repeat count, separator, numbering, prefix and suffix are saved in this browser (localStorage). The text itself is never saved, uploaded or sent anywhere.</li>
+      <li><strong>Counts are clamped to 1–100,000.</strong> Typing 0, a negative number or anything over 100,000 snaps back into range instead of erroring.</li>
+      <li><strong>Numbers count as one word each.</strong> The word count treats "1." or "[42]" as a single word, the same way it treats any whitespace-separated token.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <p>Built by krrish · <a href="https://github.com/codewithkrrish/textblast">GitHub</a> · <a href="https://www.instagram.com/krrishx.ai">Instagram</a></p>
+  <p class="muted small">Everything runs in your browser — your text is never uploaded or stored anywhere.</p>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
